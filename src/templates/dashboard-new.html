@@ -1,0 +1,46 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+		<script src="/static/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+		<link rel="import" href="/static/dashboard-new-elements.html">
+	</head>
+	<body>
+		<app-header>
+			<app-toolbar>
+				<div main-title>Dashboards</div>
+			</app-toolbar>
+		</app-header>
+		<div class="content">
+			<form is="iron-form" method="post" action="/gui-api/dashboard" id="add-form" content-type="application/json" >
+				<paper-card class="card" heading="Create dashboard">
+					<div class="card-content">
+						<paper-input name="name" always-float-label label="Dashboard name" required></paper-input>
+						<gold-email-input name="owner_email" always-float-label label="Email" error-message="Please enter a valid email" auto-validate required></gold-email-input>
+						<input type="hidden" name="layout" value="2x4">
+					</div>
+					<div class="card-actions horizontal end-justified layout">
+						<paper-button onclick="window.history.back();"><iron-icon icon="arrow-back"></iron-icon>Back</paper-button>
+						<paper-button onclick="_submit(event)"><iron-icon icon="add"></iron-icon>Create</paper-button>
+					</div>
+				</paper-card>
+				<paper-toast id="infoUser" duration="0" text="">
+					<paper-icon-button onclick="infoUser.toggle()" icon="clear"></paper-icon-button>
+				</paper-toast>
+			</form>
+			<script>
+				function _submit(event) {
+					form.submit();
+				}
+				var form = document.querySelector("#add-form");
+				var toast = document.querySelector("#infoUser");
+				document.querySelector('#add-form').addEventListener('iron-form-response', function(event) {
+					toast.show(event.detail.response["message"]);
+				});
+				document.querySelector('#add-form').addEventListener('iron-form-error', function(event) {
+					toast.show(event.detail.request.response["message"]);
+				});
+			</script>
+		</div>
+	</body>
+</html>

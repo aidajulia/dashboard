@@ -1,0 +1,4 @@
+target
+!target/release/dashboard
+!target/x86_64-unknown-linux-musl/release/dashboard
+Session.vim

@@ -1,0 +1,38 @@
+<dom-module id="shared-styles">
+  <template>
+    <style>
+        body {
+            /* No margin on body so toolbar can span the screen */
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #e5e5e5;
+        }
+        app-toolbar {
+            /* Toolbar is the main header, so give it some color */
+            background-color: #1E88E5;
+            font-family: 'Roboto', Helvetica, sans-serif;
+            color: white;
+            box-shadow: 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+            --app-toolbar-font-size: 24px;
+        }
+        .content {
+            padding: 16px 40px;
+        }
+        .card {
+            display: block;
+            background-color: white;
+            max-width: 720px;
+            margin: 16px auto;
+            box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.37);
+        }
+        @media (max-width: 600px) {
+            .content {
+                padding: 0;
+            }
+            .card {
+                margin: 8px;
+            }
+        }
+    </style>
+  </template>
+</dom-module>

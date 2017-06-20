@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="/static/elements.html">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body class='fullbleed'>
+  <dashboard-ws websocket-address="{{websocket_uri}}">
+    <split-area kind="horizontally">
+      <split-area kind="vertically">
+        <tile-image id="tile-image3"></tile-image>
+        <tile-chart id="tile-chart-line"></tile-chart>
+        <tile-chart id="tile-chart-bar"></tile-chart>
+        <tile-markdown id="tile-markdown-listing"></tile-markdown>
+      </split-area>
+      <split-area kind="vertically">
+        <tile-markdown id="tile-markdown-simple"></tile-markdown>
+        <tile-chart id="tile-chart-pie"></tile-chart>
+        <tile-value id="tile-value2"></tile-value>
+        <tile-blank></tile-blank>
+      </split-area>
+    </split-area>
+  </dashboard-ws>
+</body>
+</html>
