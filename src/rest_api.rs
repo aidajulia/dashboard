@@ -43,15 +43,19 @@ impl iron::BeforeMiddleware for AuthToken {
         let request_token = match request.headers.get::<Authorization<String>>() {
             Some(v) => v,
             None => {
-                return Err(IronError::new(StringError("Token missing".to_string()),
-                                          status::Forbidden))
+                return Err(IronError::new(
+                    StringError("Token missing".to_string()),
+                    status::Forbidden,
+                ))
             }
         };
         if request_token.0 == dashboard_token {
             Ok(())
         } else {
-            Err(IronError::new(StringError("Tokens unmatched".to_string()),
-                               status::Forbidden))
+            Err(IronError::new(
+                StringError("Tokens unmatched".to_string()),
+                status::Forbidden,
+            ))
         }
     }
 }
@@ -62,8 +66,10 @@ fn payload_with_tile_id(mut tile_data: Value, tile_id: &str) -> Result<String, &
         None => return Err("Payload is not an object"),
         Some(v) => v,
     };
-    tile_obj.insert(String::from("tile-id"),
-                    Value::String(String::from(tile_id)));
+    tile_obj.insert(
+        String::from("tile-id"),
+        Value::String(String::from(tile_id)),
+    );
     match serde_json::to_string::<serde_json::Map<String, serde_json::Value>>(tile_obj) {
         Err(_) => return Err("Failed converting to JSON"),
         Ok(v) => Ok(v),
@@ -95,8 +101,10 @@ pub fn tile_post(req: &mut Request) -> IronResult<Response> {
 
     let mut payload = String::new();
     if let Err(e) = req.body.read_to_string(&mut payload) {
-        return json_response(Status::InternalServerError,
-                             &format!("Reading payload FAILED ({})", e));
+        return json_response(
+            Status::InternalServerError,
+            &format!("Reading payload FAILED ({})", e),
+        );
     }
     let tile_data = match serde_json::from_str::<Value>(&payload) {
         Err(_) => return json_response(Status::BadRequest, "Invalid JSON"),
@@ -113,7 +121,9 @@ pub fn tile_post(req: &mut Request) -> IronResult<Response> {
     if con.set::<_, _, ()>(tile_id, &payload_with_id).is_err() {
         return json_response(Status::InternalServerError, "Saving tile data FAILED");
     }
-    if con.publish::<_, _, ()>(from_config("DASHBOARD_EVENTS_CHANNEL").as_str(), tile_id).is_err() {
+    if con.publish::<_, _, ()>(from_config("DASHBOARD_EVENTS_CHANNEL").as_str(), tile_id)
+        .is_err()
+    {
         return json_response(Status::InternalServerError, "Publishing tile data FAILED");
     }
     json_response(Status::Created, &payload_with_id)

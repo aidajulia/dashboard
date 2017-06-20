@@ -43,13 +43,15 @@ use utils::{from_config, load_config};
 use websocket::run_ws_listener;
 
 fn run_http_listener(ip_port: String) -> Listening {
-	println!("Serving HTTP on: {}", ip_port);
-	Iron::new(get_mount()).http(ip_port.as_str()).expect("starting HTTP server FAILED")
+    println!("Serving HTTP on: {}", ip_port);
+    Iron::new(get_mount())
+        .http(ip_port.as_str())
+        .expect("starting HTTP server FAILED")
 }
 
 fn setup_logger() -> slog::Logger {
-	let decorator = slog_term::PlainSyncDecorator::new(std::io::stdout());
-	let drain = slog_term::FullFormat::new(decorator).build().fuse();
+    let decorator = slog_term::PlainSyncDecorator::new(std::io::stdout());
+    let drain = slog_term::FullFormat::new(decorator).build().fuse();
     slog::Logger::root(drain, slog_o!())
 }
 
@@ -59,11 +61,15 @@ fn main() {
 
     // cli args
     let matches = app_from_crate!()
-        .arg(Arg::with_name("config-path")
-                 .help("Path to .env file (see https://github.com/slapresta/rust-dotenv)")
-                 .default_value("dashboard.env")
-                 .takes_value(true)
-                 .short("c"))
+        .arg(
+            Arg::with_name("config-path")
+                .help(
+                    "Path to .env file (see https://github.com/slapresta/rust-dotenv)",
+                )
+                .default_value("dashboard.env")
+                .takes_value(true)
+                .short("c"),
+        )
         .get_matches();
     let config_path = matches.value_of("config-path");
     load_config(config_path);

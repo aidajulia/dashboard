@@ -13,7 +13,11 @@ pub fn views_router() -> Router {
     //TODO:: random dashboard?
     router.get("/", dashboard_show, "home");
     router.get("/dashboard/new", dashboard_new, "dashboard_new");
-    router.get("/dashboard/show/:dashboard_name", dashboard_show, "dashboard_show");
+    router.get(
+        "/dashboard/show/:dashboard_name",
+        dashboard_show,
+        "dashboard_show",
+    );
     router
 }
 
@@ -26,7 +30,11 @@ fn dashboard_show_data() -> Map<String, Value> {
         true => String::from("wss"),
         false => String::from("ws"),
     };
-    let websocket_uri = format!("{}://{}", scheme, from_config("DASHBOARD_FRONT_WEBSOCKET_IP_PORT"));
+    let websocket_uri = format!(
+        "{}://{}",
+        scheme,
+        from_config("DASHBOARD_FRONT_WEBSOCKET_IP_PORT")
+    );
     data.insert("websocket_uri".to_string(), to_json(&websocket_uri));
     data
 }
@@ -39,13 +47,15 @@ pub fn dashboard_show(req: &mut Request) -> IronResult<Response> {
         .unwrap_or("2x8");
     let mut resp = Response::new();
     // TODO: file or 404
-    resp.set_mut(Template::new(dashboard_name, dashboard_show_data())).set_mut(status::Ok);
+    resp.set_mut(Template::new(dashboard_name, dashboard_show_data()))
+        .set_mut(status::Ok);
     Ok(resp)
 }
 
 pub fn dashboard_new(_req: &mut Request) -> IronResult<Response> {
     let mut resp = Response::new();
-    resp.set_mut(Template::new("dashboard-new", Map::new())).set_mut(status::Ok);
+    resp.set_mut(Template::new("dashboard-new", Map::new()))
+        .set_mut(status::Ok);
     Ok(resp)
 
 }
