@@ -24,7 +24,7 @@ pub fn run_ws_listener(ip_port: String) {
     ws::listen(ip_port.as_str(), |out| {
         Server {
             out: out,
-            redis_url: redis_url(from_config("DASHBOARD_REDIS_IP_HOST").as_str()),
+            redis_url: redis_url(from_config("DASHBOARD_REDIS_IP_PORT").as_str()),
         }
     }).expect("starting websocket FAILED");
 }
@@ -213,7 +213,7 @@ mod tests {
         ws::connect(format!("ws://{}", from_config("DASHBOARD_WEBSOCKET_IP_PORT")),
                     |out| {
             // set tile data in redis
-            let con = get_redis_con(from_config("DASHBOARD_REDIS_IP_HOST").as_str()).unwrap();
+            let con = get_redis_con(from_config("DASHBOARD_REDIS_IP_PORT").as_str()).unwrap();
             let tile_data: Value =
                 serde_json::from_str("{\"tile-id\": \"tile_id\", \"tile-data\": {}}").unwrap();
             con.set::<_, _, ()>("tile_id", serde_json::to_string(&tile_data).unwrap())

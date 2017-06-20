@@ -17,7 +17,7 @@ const DASHBOARDS_KEY: &'static str = "dashboards";
 
 impl Db {
     pub fn new() -> Result<Db, &'static str> {
-        let connection = get_redis_con(from_config("DASHBOARD_REDIS_IP_HOST").as_str())?;
+        let connection = get_redis_con(from_config("DASHBOARD_REDIS_IP_PORT").as_str())?;
         let db = Db { connection: connection };
         Ok(db)
     }

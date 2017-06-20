@@ -82,7 +82,7 @@ pub fn tile_get(req: &mut Request) -> IronResult<Response> {
         .unwrap()
         .find("tile_id")
         .unwrap();
-    let con = match get_redis_con(from_config("DASHBOARD_REDIS_IP_HOST").as_str()) {
+    let con = match get_redis_con(from_config("DASHBOARD_REDIS_IP_PORT").as_str()) {
         Ok(v) => v,
         Err(e) => return json_response(Status::InternalServerError, e),
     };
@@ -114,7 +114,7 @@ pub fn tile_post(req: &mut Request) -> IronResult<Response> {
         Err(e) => return json_response(Status::InternalServerError, e),
         Ok(v) => v,
     };
-    let con = match get_redis_con(from_config("DASHBOARD_REDIS_IP_HOST").as_str()) {
+    let con = match get_redis_con(from_config("DASHBOARD_REDIS_IP_PORT").as_str()) {
         Ok(v) => v,
         Err(e) => return json_response(Status::InternalServerError, e),
     };

@@ -62,7 +62,7 @@ mod tests {
     fn redis_connections_works() {
         load_config(None);
 
-        get_redis_con(from_config("DASHBOARD_REDIS_IP_HOST").as_str()).unwrap();
+        get_redis_con(from_config("DASHBOARD_REDIS_IP_PORT").as_str()).unwrap();
     }
 
 }
