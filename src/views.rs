@@ -1,15 +1,23 @@
 use db;
 use handlebars::to_json;
 use hbs::Template;
+use iron::middleware;
 use iron::prelude::*;
 use iron::status;
 use router::Router;
 use serde_json::value::{Value, Map};
 use std::str::FromStr;
+use templating;
 use utils::from_config;
 
 
-pub fn views_router() -> Router {
+pub fn get_handler() -> middleware::Chain {
+    let mut views_chain = Chain::new(views_router());
+    views_chain.link_after(templating::init_templating());
+    views_chain
+}
+
+fn views_router() -> Router {
     let mut router = Router::new();
     //TODO:: show listing
     router.get("/", dashboard_show, "home");
@@ -72,4 +80,39 @@ pub fn dashboard_new(_req: &mut Request) -> IronResult<Response> {
         .set_mut(status::Ok);
     Ok(resp)
 
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use db;
+    use iron::Headers;
+    use iron::status::Status;
+    use iron_test::{request, response};
+    use utils;
+
+    #[test]
+    fn test_dashboard_shows_created_dashboard() {
+        utils::load_config(None);
+        let dashboard_name = "Uber-dashboard-name".to_string();
+        let db = db::Db::new().unwrap();
+        db.delete_dashboard(&dashboard_name).unwrap();
+        let dashboard = db::Dashboard::new(
+            dashboard_name,
+            "login@email.com".to_string(),
+            "2x4".to_string(),
+        );
+        db.create_dashboard(&dashboard).unwrap();
+
+        let resp = request::get(
+            &format!("http://localhost:3000/dashboard/show/{}", dashboard.name),
+            Headers::new(),
+            &get_handler(),
+        ).unwrap();
+
+        assert_eq!(resp.status, Some(Status::Ok));
+        let body = response::extract_body_to_string(resp);
+        assert_eq!(body.contains(&dashboard.name), true);
+    }
 }
