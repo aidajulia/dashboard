@@ -1,3 +1,4 @@
+use gui_api;
 use iron::Chain;
 use mount::Mount;
 use rest_api;
@@ -5,7 +6,6 @@ use staticfile::Static;
 use std::path::Path;
 use templating;
 use utils::from_config;
-use gui_api;
 use views;
 
 
@@ -17,8 +17,11 @@ pub fn get_mount() -> Mount {
     rest_chain.link_before(rest_api::AuthToken);
 
     let mut mount = Mount::new();
-    mount.mount("/static",
-                Static::new(Path::new(from_config("DASHBOARD_STATIC_PATH").as_str())))
+    mount
+        .mount(
+            "/static",
+            Static::new(Path::new(from_config("DASHBOARD_STATIC_PATH").as_str())),
+        )
         .mount("/gui-api/", gui_api::get_router())
         .mount("/api", rest_chain)
         .mount("/", views_chain);
@@ -46,27 +49,26 @@ mod tests {
     fn _post_data(data: &str) -> Response {
         let mut headers = Headers::new();
         headers.set(Authorization("change-me".to_owned()));
-        request::post("http://localhost:8000/api/tile/tile_id",
-                      headers,
-                      data,
-                      &get_mount())
-                .unwrap()
+        request::post(
+            "http://localhost:8000/api/tile/tile_id",
+            headers,
+            data,
+            &get_mount(),
+        ).unwrap()
     }
 
     fn assert_html(response: Response) {
-        assert_eq!(response.headers
-                       .get::<ContentType>()
-                       .unwrap()
-                       .0,
-                   ContentType::html().0);
+        assert_eq!(
+            response.headers.get::<ContentType>().unwrap().0,
+            ContentType::html().0
+        );
     }
 
     fn assert_json(response: Response) {
-        assert_eq!(response.headers
-                       .get::<ContentType>()
-                       .unwrap()
-                       .0,
-                   ContentType::json().0);
+        assert_eq!(
+            response.headers.get::<ContentType>().unwrap().0,
+            ContentType::json().0
+        );
     }
 
     #[test]
@@ -137,16 +139,20 @@ mod tests {
     fn static_url_gives_200() {
         load_config(None);
 
-        let response = request::get("http://localhost:8000/static/elements.html",
-                                    Headers::new(),
-                                    &get_mount())
-                .unwrap();
+        let response = request::get(
+            "http://localhost:8000/static/elements.html",
+            Headers::new(),
+            &get_mount(),
+        ).unwrap();
         assert_eq!(response.status.unwrap(), status::Ok);
-        assert_eq!(response.headers
-                       .get::<ContentType>()
-                       .unwrap()
-                       .0,
-                   ContentType(mime::Mime(mime::TopLevel::Text, mime::SubLevel::Html, vec![])).0);
+        assert_eq!(
+            response.headers.get::<ContentType>().unwrap().0,
+            ContentType(mime::Mime(
+                mime::TopLevel::Text,
+                mime::SubLevel::Html,
+                vec![],
+            )).0
+        );
     }
 
     #[test]
@@ -155,9 +161,11 @@ mod tests {
 
         let mut headers = Headers::new();
         headers.set(Authorization("change-me".to_owned()));
-        let response = request::get("http://localhost:8000/api/tile/tile_id",
-                                    headers,
-                                    &get_mount());
+        let response = request::get(
+            "http://localhost:8000/api/tile/tile_id",
+            headers,
+            &get_mount(),
+        );
 
         assert_eq!(response.is_ok(), true);
     }
@@ -179,9 +187,11 @@ mod tests {
 
         let mut headers = Headers::new();
         headers.set(Authorization("unmatched-token".to_owned()));
-        let response = request::get("http://localhost:8000/api/tile/tile_id",
-                                    headers,
-                                    &get_mount());
+        let response = request::get(
+            "http://localhost:8000/api/tile/tile_id",
+            headers,
+            &get_mount(),
+        );
 
         let error = response.err().unwrap();
         assert_eq!(error.response.status.unwrap(), status::Forbidden);

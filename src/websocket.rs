@@ -26,8 +26,7 @@ pub fn run_ws_listener(ip_port: String) {
             out: out,
             redis_url: redis_url(from_config("DASHBOARD_REDIS_IP_HOST").as_str()),
         }
-    })
-            .expect("starting websocket FAILED");
+    }).expect("starting websocket FAILED");
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -42,8 +41,8 @@ fn send_or_log_err(sender: &ws::Sender, msg: Message) {
         Ok(as_str) => {
             debug!("sending: {}", as_str);
             sender.send(as_str).unwrap_or_else(|msg| {
-                                                   debug!("sending msg: '{}' FAILED", msg);
-                                               });
+                debug!("sending msg: '{}' FAILED", msg);
+            });
         }
         Err(e) => debug!("JSONizing msg: '{:?}' FAILED {}", msg, e),
     };
@@ -77,13 +76,18 @@ impl CanPublish for Server {
         for tile_id in &tile_ids {
             let result = match redis.get(tile_id) {
                 Ok(json) => ("tile", json),
-                Err(e) => ("error", format!("FAILED getting value for {} ({})", tile_id, e)),
+                Err(e) => (
+                    "error",
+                    format!("FAILED getting value for {} ({})", tile_id, e),
+                ),
             };
-            send_or_log_err(&self.out,
-                            Message {
-                                kind: String::from(result.0),
-                                text: result.1,
-                            })
+            send_or_log_err(
+                &self.out,
+                Message {
+                    kind: String::from(result.0),
+                    text: result.1,
+                },
+            )
         }
     }
 }
@@ -104,35 +108,46 @@ impl ws::Handler for Server {
         thread::spawn::<_, Result<(), ()>>(move || {
             debug!("thread open");
 
-            let redis = val_or_send_msg_err!(redis::Client::open(redis_url.as_str()),
-                                             cloned_server,
-                                             format!("FAILED opening redis {}", redis_url));
+            let redis = val_or_send_msg_err!(
+                redis::Client::open(redis_url.as_str()),
+                cloned_server,
+                format!("FAILED opening redis {}", redis_url)
+            );
             let mut pubsub =
                 val_or_send_msg_err!(redis.get_pubsub(), cloned_server, "FAILED getting pubsub");
             if let Err(e) = pubsub.subscribe(channel_name.as_str()) {
-                send_or_log_err(&cloned_server.out,
-                                Message {
-                                    kind: String::from("error"),
-                                    text: format!("can't subscribe {}", e),
-                                })
+                send_or_log_err(
+                    &cloned_server.out,
+                    Message {
+                        kind: String::from("error"),
+                        text: format!("can't subscribe {}", e),
+                    },
+                )
             };
             loop {
-                let msg = val_or_send_msg_err!(pubsub.get_message(),
-                                               cloned_server,
-                                               "FAILED getting published message");
-                let payload: String = val_or_send_msg_err!(msg.get_payload(),
-                                                           cloned_server,
-                                                           "FAILED getting payload of published \
-                                                            message");
-                let json: String = val_or_send_msg_err!(redis.get(&payload),
-                                                        cloned_server,
-                                                        format!("FAILED getting redis data for {}",
-                                                                &payload));
-                send_or_log_err(&cloned_server.out,
-                                Message {
-                                    kind: String::from("tile"),
-                                    text: json,
-                                });
+                let msg = val_or_send_msg_err!(
+                    pubsub.get_message(),
+                    cloned_server,
+                    "FAILED getting published message"
+                );
+                let payload: String = val_or_send_msg_err!(
+                    msg.get_payload(),
+                    cloned_server,
+                    "FAILED getting payload of published \
+                     message"
+                );
+                let json: String = val_or_send_msg_err!(
+                    redis.get(&payload),
+                    cloned_server,
+                    format!("FAILED getting redis data for {}", &payload)
+                );
+                send_or_log_err(
+                    &cloned_server.out,
+                    Message {
+                        kind: String::from("tile"),
+                        text: json,
+                    },
+                );
             }
         });
 
@@ -146,21 +161,26 @@ impl ws::Handler for Server {
 
         match msg.kind.as_str() {
             "update" => {
-                let tile_ids: Vec<String> = val_or_send_msg_err!(serde_json::from_str(&msg.text),
-                                                                 self,
-                                                                 format!("FAILED unjsoning: '{}'",
-                                                                         &msg.text));
-                let redis = val_or_send_msg_err!(redis::Client::open(self.redis_url.as_str()),
-                                                 self,
-                                                 "FAILED opening redis connection");
+                let tile_ids: Vec<String> = val_or_send_msg_err!(
+                    serde_json::from_str(&msg.text),
+                    self,
+                    format!("FAILED unjsoning: '{}'", &msg.text)
+                );
+                let redis = val_or_send_msg_err!(
+                    redis::Client::open(self.redis_url.as_str()),
+                    self,
+                    "FAILED opening redis connection"
+                );
                 self.publish_tiles(tile_ids, &redis);
             }
             _ => {
-                send_or_log_err(&self.out,
-                                Message {
-                                    kind: String::from("error"),
-                                    text: format!("Unknown message kind: ({})", msg.kind),
-                                })
+                send_or_log_err(
+                    &self.out,
+                    Message {
+                        kind: String::from("error"),
+                        text: format!("Unknown message kind: ({})", msg.kind),
+                    },
+                )
             }
         }
 
@@ -185,9 +205,9 @@ mod tests {
 
         // websocket listener
         thread::spawn(move || {
-                          let ws_ip_port = from_config("DASHBOARD_WEBSOCKET_IP_PORT");
-                          run_ws_listener(ws_ip_port);
-                      });
+            let ws_ip_port = from_config("DASHBOARD_WEBSOCKET_IP_PORT");
+            run_ws_listener(ws_ip_port);
+        });
 
         // websocket client
         ws::connect(format!("ws://{}", from_config("DASHBOARD_WEBSOCKET_IP_PORT")),
