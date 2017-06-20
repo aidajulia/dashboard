@@ -5,7 +5,7 @@ use rest_api;
 use staticfile::Static;
 use std::path::Path;
 use templating;
-use utils::from_config;
+use utils;
 use views;
 
 
@@ -20,7 +20,9 @@ pub fn get_mount() -> Mount {
     mount
         .mount(
             "/static",
-            Static::new(Path::new(from_config("DASHBOARD_STATIC_PATH").as_str())),
+            Static::new(Path::new(
+                utils::from_config("DASHBOARD_STATIC_PATH").as_str(),
+            )),
         )
         .mount("/gui-api/", gui_api::get_router())
         .mount("/api", rest_chain)
@@ -31,14 +33,16 @@ pub fn get_mount() -> Mount {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use db;
     use hyper::header::ContentType;
     use iron::{Headers, status};
     use iron::headers::Authorization;
     use iron::mime;
     use iron::prelude::*;
+    use iron::status::Status;
     use iron_test::{request, response};
     use std::error::Error;
-    use utils::*;
+
 
     fn _get_data(url: &str) -> Response {
         let mut headers = Headers::new();
@@ -73,17 +77,43 @@ mod tests {
 
     #[test]
     fn dashboard_show_returns_200() {
-        load_config(None);
+        utils::load_config(None);
 
         let response = request::get("http://localhost:8000/", Headers::new(), &get_mount())
             .unwrap();
-        assert_eq!(response.status.unwrap(), status::Ok);
-        assert_html(response);
+        //TODO: show listing
+        assert_eq!(response.status.unwrap(), status::NotFound);
+        //assert_html(response);
     }
 
     #[test]
+    fn test_dashboard_shows_created_dashboard() {
+        utils::load_config(None);
+        let dashboard_name = "Uber-dashboard-name".to_string();
+        let db = db::Db::new().unwrap();
+        db.delete_dashboard(&dashboard_name).unwrap();
+        let dashboard = db::Dashboard::new(
+            dashboard_name,
+            "login@email.com".to_string(),
+            "2x4".to_string(),
+        );
+        db.create_dashboard(&dashboard).unwrap();
+
+        let resp = request::get(
+            &format!("http://localhost:3000/dashboard/show/{}", dashboard.name),
+            Headers::new(),
+            &get_mount(),
+        ).unwrap();
+
+        assert_eq!(resp.status, Some(Status::Ok));
+        let body = response::extract_body_to_string(resp);
+        assert_eq!(body.contains(&dashboard.name), true);
+    }
+
+
+    #[test]
     fn tile_get_returns_200() {
-        load_config(None);
+        utils::load_config(None);
         _post_data("{}");
 
         let response = _get_data("http://localhost:8000/api/tile/tile_id");
@@ -94,7 +124,7 @@ mod tests {
 
     #[test]
     fn tile_get_returns_404_when_tile_id_is_missing() {
-        load_config(None);
+        utils::load_config(None);
 
         let response = _get_data("http://localhost:8000/api/tile/missing");
 
@@ -105,7 +135,7 @@ mod tests {
 
     #[test]
     fn tile_post_returns_201() {
-        load_config(None);
+        utils::load_config(None);
 
         let response = _post_data("{}");
 
@@ -115,7 +145,7 @@ mod tests {
 
     #[test]
     fn tile_post_saves_tile_id_in_tile_data() {
-        load_config(None);
+        utils::load_config(None);
         let tile_data = "{}";
 
         let response = _post_data(tile_data);
@@ -127,7 +157,7 @@ mod tests {
 
     #[test]
     fn tile_post_returns_400_when_json_invalid() {
-        load_config(None);
+        utils::load_config(None);
 
         let response = _post_data("{,}");
 
@@ -137,7 +167,7 @@ mod tests {
 
     #[test]
     fn static_url_gives_200() {
-        load_config(None);
+        utils::load_config(None);
 
         let response = request::get(
             "http://localhost:8000/static/elements.html",
@@ -157,7 +187,7 @@ mod tests {
 
     #[test]
     fn api_gives_ok_when_tokens_machted() {
-        load_config(None);
+        utils::load_config(None);
 
         let mut headers = Headers::new();
         headers.set(Authorization("change-me".to_owned()));
@@ -172,7 +202,7 @@ mod tests {
 
     #[test]
     fn api_gives_err_when_token_missing() {
-        load_config(None);
+        utils::load_config(None);
 
         let response = request::get("http://localhost:8000/api", Headers::new(), &get_mount());
 
@@ -183,7 +213,7 @@ mod tests {
 
     #[test]
     fn api_gives_err_when_token_is_different() {
-        load_config(None);
+        utils::load_config(None);
 
         let mut headers = Headers::new();
         headers.set(Authorization("unmatched-token".to_owned()));

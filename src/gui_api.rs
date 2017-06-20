@@ -115,8 +115,7 @@ mod tests {
 
         assert_eq!(resp.status, Some(Status::Created));
         let body = response::extract_body_to_string(resp);
-        let json = db.get_dashboard("some-name").unwrap().unwrap();
-        let dashboard: Dashboard = serde_json::from_str(&json).unwrap();
+        let dashboard = db.get_dashboard("some-name").unwrap().unwrap();
         assert_eq!(&dashboard.owner_email, "some-dude@some-email.com");
         let expected = format!(
             "{{\"message\":\"Dashboard is created! Save your personal token: {}\"}}",
@@ -124,4 +123,5 @@ mod tests {
         );
         assert_eq!(body, expected);
     }
+
 }

@@ -42,10 +42,10 @@ use routing::get_mount;
 use utils::{from_config, load_config};
 use websocket::run_ws_listener;
 
-fn run_http_listener(ip_port: String) -> Listening {
+fn run_http_listener(ip_port: &str) -> Listening {
     println!("Serving HTTP on: {}", ip_port);
     Iron::new(get_mount())
-        .http(ip_port.as_str())
+        .http(ip_port)
         .expect("starting HTTP server FAILED")
 }
 
@@ -75,12 +75,10 @@ fn main() {
     load_config(config_path);
 
     // http listener
-    let http_ip_port = from_config("DASHBOARD_IP_PORT");
-    let _listener = run_http_listener(http_ip_port);
+    let _listener = run_http_listener(from_config("DASHBOARD_IP_PORT").as_str());
 
 
     // websocket listener
-    let ws_ip_port = from_config("DASHBOARD_WEBSOCKET_IP_PORT");
-    run_ws_listener(ws_ip_port);
+    run_ws_listener(from_config("DASHBOARD_WEBSOCKET_IP_PORT").as_str());
     // unreachable code
 }
