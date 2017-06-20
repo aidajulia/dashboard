@@ -4,14 +4,12 @@ use mount::Mount;
 use rest_api;
 use staticfile::Static;
 use std::path::Path;
-use templating;
 use utils;
 use views;
 
 
 pub fn get_mount() -> Mount {
-    let mut views_chain = Chain::new(views::views_router());
-    views_chain.link_after(templating::init_templating());
+    let views_handler = views::get_handler();
 
     let mut rest_chain = Chain::new(rest_api::rest_router());
     rest_chain.link_before(rest_api::AuthToken);
@@ -26,7 +24,7 @@ pub fn get_mount() -> Mount {
         )
         .mount("/gui-api/", gui_api::get_router())
         .mount("/api", rest_chain)
-        .mount("/", views_chain);
+        .mount("/", views_handler);
     mount
 }
 
@@ -59,13 +57,6 @@ mod tests {
             data,
             &get_mount(),
         ).unwrap()
-    }
-
-    fn assert_html(response: Response) {
-        assert_eq!(
-            response.headers.get::<ContentType>().unwrap().0,
-            ContentType::html().0
-        );
     }
 
     fn assert_json(response: Response) {
