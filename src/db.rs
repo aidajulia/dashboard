@@ -5,6 +5,7 @@
 use redis;
 use redis::Commands;
 use serde_json;
+use std::error::Error;
 use utils::{get_redis_con, from_config};
 use uuid::Uuid;
 
@@ -42,14 +43,20 @@ impl Db {
             .map_err(|e| e.to_string())
     }
 
-    /// Returns `Dashboard` from saved at `dashboard_name`
-    pub fn get_dashboard(&self, dashboard_name: &str) -> Result<Option<String>, String> {
-        self.connection
-            .hget::<_, _, Option<String>>(DASHBOARDS_KEY, dashboard_name)
-            .map_err(|e| e.to_string())
+    /// Returns `Dashboard` saved at `dashboard_name`
+    pub fn get_dashboard(&self, dashboard_name: &str) -> Result<Option<Dashboard>, Box<Error>> {
+        let json_op = self.connection
+            .hget::<_, _, Option<String>>(DASHBOARDS_KEY, dashboard_name)?;
+        let json = match json_op {
+            None => return Ok(None),
+            Some(j) => j,
+        };
+        let dashboard: Dashboard = serde_json::from_str(&json)?;
+        Ok(Some(dashboard))
     }
 
     /// Deletes `Dashboard` at `dashboard_name`
+    #[cfg(test)]
     pub fn delete_dashboard(&self, dashboard_name: &str) -> Result<(u64), String> {
         self.connection
             .hdel::<_, _, u64>(DASHBOARDS_KEY, dashboard_name)
@@ -69,6 +76,19 @@ pub struct Dashboard {
 }
 
 impl Dashboard {
+    /// Generates and assigns api token
+    #[cfg(test)]
+    pub fn new(name: String, owner_email: String, layout: String) -> Dashboard {
+        let mut d = Dashboard {
+            name: name,
+            owner_email: owner_email,
+            layout: layout,
+            api_token: None,
+        };
+        d.assign_api_token();
+        d
+    }
+
     /// Generates and assigns api token
     pub fn assign_api_token(&mut self) {
         self.api_token = Some(Uuid::new_v4().to_string());

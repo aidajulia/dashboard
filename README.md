@@ -14,7 +14,7 @@ To see dashboards in action go here
 
 * [Dashboard with single tile (tile-value)](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/single-tile-value.html)
 * [Dashboard with single tile (tile-chart)](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/single-tile-chart.html)
-* [Dashboard with 2x8 layout](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/2x8.html)
+* [Dashboard with 2x4 layout](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/2x4.html)
 * [Dashboard with advanced splitting feature](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/split-demo.html)
 
 

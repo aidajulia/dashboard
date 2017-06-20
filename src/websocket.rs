@@ -19,9 +19,9 @@ macro_rules! val_or_send_msg_err {
     })
 }
 
-pub fn run_ws_listener(ip_port: String) {
+pub fn run_ws_listener(ip_port: &str) {
     println!("Serving websocket on: {}", ip_port);
-    ws::listen(ip_port.as_str(), |out| {
+    ws::listen(ip_port, |out| {
         Server {
             out: out,
             redis_url: redis_url(from_config("DASHBOARD_REDIS_IP_PORT").as_str()),
@@ -206,7 +206,7 @@ mod tests {
         // websocket listener
         thread::spawn(move || {
             let ws_ip_port = from_config("DASHBOARD_WEBSOCKET_IP_PORT");
-            run_ws_listener(ws_ip_port);
+            run_ws_listener(&ws_ip_port);
         });
 
         // websocket client

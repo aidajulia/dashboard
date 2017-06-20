@@ -5,7 +5,6 @@ ARG APP_PATH=_build/dashboard
 ARG BOWER_COMPONENTS=_build/bower_components
 
 ADD dashboard.env .
-ADD src/dashboards/ src/dashboards/
 ADD src/templates/ src/templates/
 ADD src/static/ src/static/
 ADD $BOWER_COMPONENTS src/static/bower_components
