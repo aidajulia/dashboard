@@ -26,9 +26,10 @@ fn dashboard_show_data() -> Map<String, Value> {
     let mut data = Map::new();
     let ssl_enable = FromStr::from_str(&from_config("DASHBOARD_WEBSOCKET_SSL"))
         .expect("DASHBOARD_WEBSOCKET_SSL is not bool");
-    let scheme = match ssl_enable {
-        true => String::from("wss"),
-        false => String::from("ws"),
+    let scheme = if ssl_enable {
+        String::from("wss")
+    } else {
+        String::from("ws")
     };
     let websocket_uri = format!(
         "{}://{}",

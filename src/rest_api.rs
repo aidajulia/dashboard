@@ -71,7 +71,7 @@ fn payload_with_tile_id(mut tile_data: Value, tile_id: &str) -> Result<String, &
         Value::String(String::from(tile_id)),
     );
     match serde_json::to_string::<serde_json::Map<String, serde_json::Value>>(tile_obj) {
-        Err(_) => return Err("Failed converting to JSON"),
+        Err(_) => Err("Failed converting to JSON"),
         Ok(v) => Ok(v),
     }
 }
