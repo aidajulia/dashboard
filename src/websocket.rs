@@ -10,7 +10,7 @@ macro_rules! val_or_send_msg_err {
         Ok(val) => val,
         Err(e) => {
             send_or_log_err(&$ws_server.out,
-                            Message {
+                            &Message {
                                 kind: String::from("error"),
                                 text: format!("{} ({})", $err_msg, e),
                             });
@@ -36,7 +36,7 @@ struct Message {
     text: String,
 }
 
-fn send_or_log_err(sender: &ws::Sender, msg: Message) {
+fn send_or_log_err(sender: &ws::Sender, msg: &Message) {
     match serde_json::to_string(&msg) {
         Ok(as_str) => {
             debug!("sending: {}", as_str);
@@ -83,7 +83,7 @@ impl CanPublish for Server {
             };
             send_or_log_err(
                 &self.out,
-                Message {
+                &Message {
                     kind: String::from(result.0),
                     text: result.1,
                 },
@@ -118,7 +118,7 @@ impl ws::Handler for Server {
             if let Err(e) = pubsub.subscribe(channel_name.as_str()) {
                 send_or_log_err(
                     &cloned_server.out,
-                    Message {
+                    &Message {
                         kind: String::from("error"),
                         text: format!("can't subscribe {}", e),
                     },
@@ -143,7 +143,7 @@ impl ws::Handler for Server {
                 );
                 send_or_log_err(
                     &cloned_server.out,
-                    Message {
+                    &Message {
                         kind: String::from("tile"),
                         text: json,
                     },
@@ -176,7 +176,7 @@ impl ws::Handler for Server {
             _ => {
                 send_or_log_err(
                     &self.out,
-                    Message {
+                    &Message {
                         kind: String::from("error"),
                         text: format!("Unknown message kind: ({})", msg.kind),
                     },

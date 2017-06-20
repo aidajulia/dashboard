@@ -2,7 +2,6 @@ use bodyparser;
 
 use db;
 use db::Dashboard;
-use iron::headers::ContentType;
 use iron::prelude::*;
 use iron::status::Status;
 use persistent;
@@ -26,7 +25,7 @@ fn json_response_as_msg<M: AsRef<str>>(status: Status, details_msg: M) -> IronRe
         _ => format!("Couldn't create dashboard ({})", details_msg.as_ref()),
     };
     let resp_msg = ResponseMessage { message: msg };
-    let json = serde_json::to_string(&resp_msg).unwrap_or("{}".to_string());
+    let json = serde_json::to_string(&resp_msg).unwrap_or_else(|_| "{}".to_string());
     json_response(status, &json)
 }
 
@@ -89,6 +88,7 @@ mod tests {
     use super::*;
     use db;
     use iron::Headers;
+    use iron::headers::ContentType;
     use iron_test::{request, response};
     use utils;
 
