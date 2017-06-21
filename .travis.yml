@@ -17,5 +17,7 @@ script:
 after_success:
     - if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_RUST_VERSION" == "stable" ]; then
       docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker tag xliiv/dashboard xliiv/dashboard:"$TRAVIS_COMMIT";
+      docker push xliiv/dashboard:"$TRAVIS_COMMIT";
       docker push xliiv/dashboard;
       fi
