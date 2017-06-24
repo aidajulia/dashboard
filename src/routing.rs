@@ -72,9 +72,11 @@ mod tests {
 
         let response = request::get("http://localhost:8000/", Headers::new(), &get_mount())
             .unwrap();
-        //TODO: show listing
-        assert_eq!(response.status.unwrap(), status::NotFound);
-        //assert_html(response);
+        assert_eq!(response.status.unwrap(), status::Ok);
+        assert_eq!(
+            response.headers.get::<ContentType>().unwrap().0,
+            ContentType::html().0
+        );
     }
 
     #[test]

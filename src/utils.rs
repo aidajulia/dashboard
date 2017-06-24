@@ -4,7 +4,9 @@ use iron::prelude::*;
 use iron::status::Status;
 use redis;
 use redis::Connection;
+use std::clone::Clone;
 use std::env;
+use std::iter::Iterator;
 use std::path::Path;
 
 pub fn redis_url(ip_port: &str) -> String {
@@ -36,6 +38,35 @@ pub fn json_response(status: Status, payload: &str) -> IronResult<Response> {
     Ok(Response::with((ContentType::json().0, status, payload)))
 }
 
+
+pub fn get_page_items<T: Clone + Iterator>(
+    iter: T,
+    page_number: u64,
+    per_page: u64,
+) -> Result<(Vec<<T as Iterator>::Item>, usize), String> {
+    let per_page = per_page as usize;
+    if page_number < 1 {
+        return Err("Page number must be 1 or greater".to_string());
+    }
+    let page_number = (page_number - 1) as usize;
+
+    let items_count = iter.clone().count();
+    let max_page = items_count / per_page;
+    if page_number > max_page {
+        return Err(format!(
+            "Page doesn't exist. Page number should be at most: {}",
+            max_page + 1
+        ));
+    }
+    let to_skip = page_number * per_page;
+    let collection = iter.enumerate()
+        .map(|(_, v)| v)
+        .skip(to_skip)
+        .take(per_page)
+        .collect();
+    Ok((collection, max_page + 1))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -63,6 +94,30 @@ mod tests {
         load_config(None);
 
         get_redis_con(from_config("DASHBOARD_REDIS_IP_PORT").as_str()).unwrap();
+    }
+
+    #[test]
+    fn get_page_items_works_ok() {
+        let iter = "0123456".chars();
+
+        let items = get_page_items(iter, 2, 2);
+
+        assert_eq!(items, Ok((vec!['2', '3'], 4)));
+    }
+
+    #[test]
+    fn get_page_items_result_err_when_page_out_of_range() {
+        let iter = "0123456".chars();
+
+        let items = get_page_items(iter, 100, 2);
+
+        assert_eq!(
+            items,
+            Err(
+                "Page doesn\'t exist. Page number should be at most: 4".to_string(),
+            )
+        );
+
     }
 
 }

@@ -37,7 +37,7 @@
     "paper-styles": "1 - 2",
     "webcomponentsjs": "^v1.0.0",
     "iron-ajax": "^1.0.0",
-    "paper-input": "1 - 2",
+    "paper-input": "^1.0.0",
     "paper-card": "^2.0.0",
     "iron-flex-layout": "1 - 2"
   }

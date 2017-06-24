@@ -6,11 +6,9 @@
 		<link rel="import" href="/static/dashboard-new-elements.html">
 	</head>
 	<body>
-		<app-header>
-			<app-toolbar>
-				<div main-title>Dashboards</div>
-			</app-toolbar>
-		</app-header>
+		<app-toolbar>
+			<div main-title>Dashboards</div>
+		</app-toolbar>
 		<div class="content">
 			<form is="iron-form" method="post" action="/gui-api/dashboard" id="add-form" content-type="application/json" >
 				<paper-card class="card" heading="Create dashboard">

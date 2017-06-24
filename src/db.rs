@@ -2,6 +2,7 @@
 
 // TODO: migrate to postgres?, and rm it
 
+use natord;
 use redis;
 use redis::Commands;
 use serde_json;
@@ -23,6 +24,11 @@ impl Db {
         Ok(db)
     }
 
+    #[cfg(test)]
+    pub fn run_cmd(&self, cmd: &str) -> Result<(), Box<Error>> {
+        Ok(redis::cmd(cmd).query(&self.connection)?)
+    }
+
     /// Saves `Dashboard` at `Dashboard.name` in redis
     ///
     /// # Errors
@@ -41,6 +47,16 @@ impl Db {
             .hset::<_, _, _, u64>(DASHBOARDS_KEY, &dashboard.name, &json)
             .map(|_| ())
             .map_err(|e| e.to_string())
+    }
+
+    /// Returns sorted vector of `Dashboards`
+    pub fn get_dashboards(&self) -> Result<Vec<Dashboard>, Box<Error>> {
+        let mut collection: Vec<Dashboard> = self.connection
+            .hscan::<_, (String, Dashboard)>(DASHBOARDS_KEY)?
+            .map(|(_, dashboard_data)| dashboard_data)
+            .collect();
+        collection.sort_by(|a, b| natord::compare(&a.name, &b.name));
+        Ok(collection)
     }
 
     /// Returns `Dashboard` saved at `dashboard_name`
@@ -97,5 +113,24 @@ impl Dashboard {
     /// Returns api token
     pub fn get_api_token(&self) -> Option<&String> {
         self.api_token.as_ref()
+    }
+}
+
+impl redis::FromRedisValue for Dashboard {
+    fn from_redis_value(v: &redis::Value) -> redis::RedisResult<Dashboard> {
+        match *v {
+            redis::Value::Data(ref val) => {
+                match serde_json::from_slice(val) {
+                    Err(_) => Err((redis::ErrorKind::TypeError, "Can't unjson value").into()),
+                    Ok(v) => Ok(v),
+                }
+            }
+            _ => Err(
+                (
+                    redis::ErrorKind::ResponseError,
+                    "Response type not Dashboard compatible.",
+                ).into(),
+            ),
+        }
     }
 }

@@ -12,7 +12,8 @@ ADD . ./
 RUN rustup default $RUST_VERSION
 RUN rustup target add x86_64-unknown-linux-musl
 RUN cargo build --release --verbose
-RUN DASHBOARD_REDIS_IP_PORT=$REDIS_IP:6379 cargo test --release
+# TODO: run test in parallel back
+RUN DASHBOARD_REDIS_IP_PORT=$REDIS_IP:6379 cargo test --release -- --test-threads=1
 
 # npm & bower stuff
 RUN sudo apt update && sudo apt install -y \
