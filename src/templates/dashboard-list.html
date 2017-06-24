@@ -1,0 +1,109 @@
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+	<script src="/static/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+	<link rel="import" href="/static/dashboard-list-elements.html">
+
+	<style is="custom-style">
+		.center {
+			display: block;
+			max-width: 720px;
+			margin: 16px auto;
+			@apply(--layout-horizontal);
+			@apply(--layout-center-justified);
+		}
+
+		paper-item {
+			border-bottom: 1px solid #e8e8e8;
+		}
+
+		#pagination {
+			display: block;
+			max-width: 720px;
+			margin: 16px auto;
+			@apply(--layout-horizontal);
+			@apply(--layout-center-justified);
+			@apply(--layout-center);
+		}
+
+		#pagination .container {
+			@apply(--layout-horizontal);
+			@apply(--layout-center);
+		}
+
+		#pagination paper-input {
+			width: 85px;
+			display: inline-block;
+		}
+
+		#pagination paper-button {
+			--paper-button: {
+				min-width: 2rem;
+				margin-left: 0.5rem;
+				padding-bottom: 0;
+			}
+			;
+		}
+
+		#pagination paper-input {
+			--paper-input-container-input: {
+				text-align: right;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<app-toolbar>
+		<div main-title>Dashboards</div>
+	</app-toolbar>
+
+	{{#if dashboards}}
+	<paper-card class="card" heading="Create dashboard">
+		<div class="card-content">
+			{{#each dashboards as |d| ~}}
+			<a href="/dashboard/show/{{d.name}}" tabindex="-1">
+				<paper-item>{{d.name}}</paper-item>
+			</a>
+			{{/each~}}
+		</div>
+	</paper-card>
+
+	{{#if show-pagination }}
+	<div id="pagination">
+		<form method="get" action="" id="pagination-form">
+			<div class="container">
+				<paper-input name="page" type="number" min="1" max="{{page-max}}" value="{{page-current}}" always-float-label label="page">
+					<div suffix>/&nbsp&nbsp{{page-max}}</div>
+				</paper-input>
+				<paper-button noink onclick="_submit()">
+					<iron-icon icon="arrow-forward"></iron-icon>
+				</paper-button>
+			</div>
+		</form>
+	</div>
+	{{/if}}
+
+	<script>
+		var form = document.querySelector("#pagination-form ");
+		function _submit(event) {
+			form.submit();
+		}
+	</script>
+	{{else}}
+	<div class="content center">
+		<div>
+			<p>
+				No Dashboard created yet. Be the first and create it
+				<a href="/dashboard/new">
+					<paper-button>here</paper-button>
+				</a>
+			</p>
+		</div>
+	</div>
+	{{/if}}
+</body>
+
+</html>

@@ -4,11 +4,12 @@ use hbs::Template;
 use iron::middleware;
 use iron::prelude::*;
 use iron::status;
+use params;
 use router::Router;
 use serde_json::value::{Value, Map};
 use std::str::FromStr;
 use templating;
-use utils::from_config;
+use utils::{from_config, get_page_items};
 
 
 pub fn get_handler() -> middleware::Chain {
@@ -19,9 +20,9 @@ pub fn get_handler() -> middleware::Chain {
 
 fn views_router() -> Router {
     let mut router = Router::new();
-    //TODO:: show listing
-    router.get("/", dashboard_show, "home");
+    router.get("/", dashboard_list, "home");
     router.get("/dashboard/new", dashboard_new, "dashboard_new");
+    router.get("/dashboard/list", dashboard_list, "dashboard_list");
     router.get(
         "/dashboard/show/:dashboard_name",
         dashboard_show,
@@ -82,6 +83,50 @@ pub fn dashboard_new(_req: &mut Request) -> IronResult<Response> {
 
 }
 
+pub fn dashboard_list(req: &mut Request) -> IronResult<Response> {
+    let map = match req.get_ref::<params::Params>() {
+        Err(e) => return Ok(Response::with((status::InternalServerError, e.to_string()))),
+        Ok(v) => v,
+    };
+    let err_msg = "Come back later, we encounter an error".to_string();
+    let page_current = match map.find(&["page"]) {
+        Some(&params::Value::String(ref v)) => {
+            match v.parse() {
+                Err(_) => {
+                    return Ok(Response::with((
+                        status::Ok,
+                        format!("Page should be a positive number ({})", v),
+                    )))
+                }
+                Ok(p) => p,
+            }
+        }
+        _ => 1,
+    };
+    let mut tmplt_data = Map::new();
+
+    let db = match db::Db::new() {
+        Err(e) => return Ok(Response::with((status::InternalServerError, e.to_string()))),
+        Ok(d) => d,
+    };
+    let per_page = 12; //TODO: user settings
+    let dashboards = match db.get_dashboards() {
+        Err(_) => return Ok(Response::with((status::InternalServerError, err_msg))),
+        Ok(v) => v,
+    };
+    let (dashboards, page_max) = match get_page_items(dashboards.iter(), page_current, per_page) {
+        Err(_) => return Ok(Response::with((status::InternalServerError, err_msg))),
+        Ok(v) => v,
+    };
+    tmplt_data.insert("page-current".to_string(), to_json(&(page_current)));
+    tmplt_data.insert("page-max".to_string(), to_json(&page_max));
+    tmplt_data.insert("show-pagination".to_string(), to_json(&(page_max > 1)));
+    tmplt_data.insert("dashboards".to_string(), to_json(&dashboards));
+    Ok(Response::with(
+        (status::Ok, Template::new("dashboard-list", tmplt_data)),
+    ))
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -114,5 +159,49 @@ mod tests {
         assert_eq!(resp.status, Some(Status::Ok));
         let body = response::extract_body_to_string(resp);
         assert_eq!(body.contains(&dashboard.name), true);
+    }
+
+    #[test]
+    fn test_dashboard_list_works_when_dashboards_count_0() {
+        utils::load_config(None);
+        let db = db::Db::new().unwrap();
+        db.run_cmd("flushall").unwrap();
+
+        let resp = request::get(
+            "http://localhost:3000/dashboard/list",
+            Headers::new(),
+            &get_handler(),
+        ).unwrap();
+
+        assert_eq!(resp.status, Some(Status::Ok));
+        let body = response::extract_body_to_string(resp);
+        assert_eq!(body.contains("No Dashboard created yet"), true);
+    }
+
+    #[test]
+    fn test_dashboard_list_shows_13th_elem_on_second_page() {
+        utils::load_config(None);
+        let db = db::Db::new().unwrap();
+        db.run_cmd("flushall").unwrap();
+
+        for idx in 0..14 {
+            let dashboard_name = format!("dashboard-{}", idx);
+            let dashboard = db::Dashboard::new(
+                dashboard_name,
+                "login@email.com".to_string(),
+                "2x4".to_string(),
+            );
+            db.create_dashboard(&dashboard).unwrap();
+        }
+
+        let resp = request::get(
+            "http://localhost:3000/dashboard/list?page=2",
+            Headers::new(),
+            &get_handler(),
+        ).unwrap();
+
+        assert_eq!(resp.status, Some(Status::Ok));
+        let body = response::extract_body_to_string(resp);
+        assert_eq!(body.contains("dashboard-13"), true);
     }
 }
