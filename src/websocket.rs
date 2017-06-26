@@ -67,11 +67,7 @@ pub struct Server {
     pub redis_url: String,
 }
 
-trait CanPublish {
-    fn publish_tiles(&mut self, tile_ids: Vec<String>, redis: &redis::Client) -> ();
-}
-
-impl CanPublish for Server {
+impl Server {
     fn publish_tiles(&mut self, tile_ids: Vec<String>, redis: &redis::Client) {
         for tile_id in &tile_ids {
             let result = match redis.get(tile_id) {

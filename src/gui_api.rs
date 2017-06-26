@@ -63,7 +63,7 @@ pub fn dashboard_post(req: &mut Request) -> IronResult<Response> {
         return json_response_as_msg(Status::BadRequest, e.to_string());
     }
 
-    // TODO::
+    // TODO:
     //if let Err(e) = notification.send_token(api_token=Dashboard.api_token, email=email) {
     //    if Err(e) = Dashboard.delete() {
     //        let msg = "Couldn't send api-token to email: {} \

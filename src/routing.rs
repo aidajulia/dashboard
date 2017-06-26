@@ -48,15 +48,10 @@ mod tests {
         request::get(url, headers, &get_mount()).unwrap()
     }
 
-    fn _post_data(data: &str) -> Response {
+    fn _post_data(url: String, api_key: &str, data: &str) -> Response {
         let mut headers = Headers::new();
-        headers.set(Authorization("change-me".to_owned()));
-        request::post(
-            "http://localhost:8000/api/tile/tile_id",
-            headers,
-            data,
-            &get_mount(),
-        ).unwrap()
+        headers.set(Authorization(api_key.to_owned()));
+        request::post(&url, headers, data, &get_mount()).unwrap()
     }
 
     fn assert_json(response: Response) {
@@ -77,6 +72,16 @@ mod tests {
             response.headers.get::<ContentType>().unwrap().0,
             ContentType::html().0
         );
+    }
+
+    fn upsert_dashboard(db: &db::Db, dashboard_name: &str) -> db::Dashboard {
+        let dashboard = db::Dashboard::new(
+            dashboard_name.to_string(),
+            "login@email.com".to_string(),
+            "2x4".to_string(),
+        );
+        db.upsert_dashboard(&dashboard).unwrap();
+        db.get_dashboard(dashboard_name).unwrap().unwrap()
     }
 
     #[test]
@@ -103,56 +108,79 @@ mod tests {
         assert_eq!(body.contains(&dashboard.name), true);
     }
 
+    fn tile_get_setup() {
+        utils::load_config(None);
+        let db = db::Db::new().unwrap();
+        let dashboard_name = "dashboard-test";
+        upsert_dashboard(&db, &dashboard_name);
+        db.upsert_tile(&dashboard_name, "tile-test", "{}").unwrap();
+    }
 
     #[test]
     fn tile_get_returns_200() {
-        utils::load_config(None);
-        _post_data("{}");
+        tile_get_setup();
 
-        let response = _get_data("http://localhost:8000/api/tile/tile_id");
+        let response = _get_data(
+            "http://localhost:8000/api/dashboard/dashboard-test/tile/tile-test",
+        );
 
         assert_eq!(response.status.unwrap(), status::Ok);
         assert_json(response);
     }
 
     #[test]
-    fn tile_get_returns_404_when_tile_id_is_missing() {
-        utils::load_config(None);
+    fn tile_get_returns_404_when_dashboard_is_missing() {
+        tile_get_setup();
 
-        let response = _get_data("http://localhost:8000/api/tile/missing");
+        let response = _get_data(
+            "http://localhost:8000/api/dashboard/dashboard-missing/tile/tile-test",
+        );
 
         assert_eq!(response.status.unwrap(), status::NotFound);
         assert_json(response);
     }
 
+    #[test]
+    fn tile_get_returns_404_when_tile_is_missing() {
+        tile_get_setup();
+
+        let response = _get_data(
+            "http://localhost:8000/api/dashboard/dashboard-test/tile/tile-missing",
+        );
+
+        assert_eq!(response.status.unwrap(), status::NotFound);
+        assert_json(response);
+    }
 
     #[test]
     fn tile_post_returns_201() {
         utils::load_config(None);
+        let db = db::Db::new().unwrap();
+        let dashboard = upsert_dashboard(&db, "dashboard-test");
+        let url = format!(
+            "http://localhost:8000/api/dashboard/{}/tile/tile_id",
+            dashboard.name
+        );
+        let api_key = dashboard.get_api_token().unwrap();
 
-        let response = _post_data("{}");
+        let response = _post_data(url, api_key, "{}");
 
         assert_eq!(response.status.unwrap(), status::Created);
         assert_json(response);
     }
 
     #[test]
-    fn tile_post_saves_tile_id_in_tile_data() {
-        utils::load_config(None);
-        let tile_data = "{}";
-
-        let response = _post_data(tile_data);
-
-        assert_eq!(response.status.unwrap(), status::Created);
-        let json = response::extract_body_to_string(response);
-        assert_eq!(json, "{\"tile-id\":\"tile_id\"}");
-    }
-
-    #[test]
     fn tile_post_returns_400_when_json_invalid() {
         utils::load_config(None);
+        let db = db::Db::new().unwrap();
+        let dashboard = upsert_dashboard(&db, "dashboard-test");
+        let url = format!(
+            "http://localhost:8000/api/dashboard/{}/tile/tile_id",
+            dashboard.name
+        );
+        let api_key = dashboard.get_api_token().unwrap();
 
-        let response = _post_data("{,}");
+        let response = _post_data(url, api_key, "{,}");
 
         assert_eq!(response.status.unwrap(), status::BadRequest);
         assert_json(response);
@@ -167,6 +195,7 @@ mod tests {
             Headers::new(),
             &get_mount(),
         ).unwrap();
+
         assert_eq!(response.status.unwrap(), status::Ok);
         assert_eq!(
             response.headers.get::<ContentType>().unwrap().0,
@@ -179,25 +208,15 @@ mod tests {
     }
 
     #[test]
-    fn api_gives_ok_when_tokens_machted() {
+    fn tile_post_gives_err_when_token_missing() {
         utils::load_config(None);
 
-        let mut headers = Headers::new();
-        headers.set(Authorization("change-me".to_owned()));
-        let response = request::get(
-            "http://localhost:8000/api/tile/tile_id",
-            headers,
+        let response = request::post(
+            "http://localhost:8000/api/dashboard/dashboard-test/tile/tile-test",
+            Headers::new(),
+            "{}",
             &get_mount(),
         );
-
-        assert_eq!(response.is_ok(), true);
-    }
-
-    #[test]
-    fn api_gives_err_when_token_missing() {
-        utils::load_config(None);
-
-        let response = request::get("http://localhost:8000/api", Headers::new(), &get_mount());
 
         let error = response.err().unwrap();
         assert_eq!(error.response.status.unwrap(), status::Forbidden);
@@ -205,19 +224,24 @@ mod tests {
     }
 
     #[test]
-    fn api_gives_err_when_token_is_different() {
+    fn tile_post_gives_err_when_token_is_different() {
         utils::load_config(None);
-
+        let db = db::Db::new().unwrap();
+        let dashboard_name = "dashboard-test";
+        upsert_dashboard(&db, &dashboard_name);
+        db.upsert_tile(&dashboard_name, "tile-test", "{}").unwrap();
         let mut headers = Headers::new();
-        headers.set(Authorization("unmatched-token".to_owned()));
-        let response = request::get(
-            "http://localhost:8000/api/tile/tile_id",
-            headers,
-            &get_mount(),
-        );
+        headers.set(Authorization("incorrect-token".to_owned()));
 
-        let error = response.err().unwrap();
-        assert_eq!(error.response.status.unwrap(), status::Forbidden);
-        assert_eq!(error.description(), "Tokens unmatched");
+        let response = request::post(
+            "http://localhost:8000/api/dashboard/dashboard-test/tile/tile-test",
+            headers,
+            "{}",
+            &get_mount(),
+        ).unwrap();
+
+        assert_eq!(response.status, Some(status::Forbidden));
+        let body = response::extract_body_to_string(response);
+        assert_eq!(body, "Tokens unmatched");
     }
 }

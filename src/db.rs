@@ -16,9 +16,11 @@ pub struct Db {
 }
 
 const DASHBOARDS_KEY: &'static str = "dashboards";
+const TILES_KEY: &'static str = "tiles";
 
 impl Db {
     pub fn new() -> Result<Db, &'static str> {
+        // TODO: get from thread pool
         let connection = get_redis_con(from_config("DASHBOARD_REDIS_IP_PORT").as_str())?;
         let db = Db { connection: connection };
         Ok(db)
@@ -40,7 +42,11 @@ impl Db {
             Ok(true) => return Err(format!("Dashboard {} already exists", dashboard.name)),
             Ok(false) => (),
         }
-        // TODO: impl to ToRedisArgs so this line could be removed?
+        self.upsert_dashboard(dashboard)
+    }
+
+    /// Inserts `dashboard` (or update when already exists)
+    pub fn upsert_dashboard(&self, dashboard: &Dashboard) -> Result<(), String> {
         let json = serde_json::to_string(&dashboard)
             .map_err(|e| e.to_string())?;
         self.connection
@@ -78,6 +84,36 @@ impl Db {
             .hdel::<_, _, u64>(DASHBOARDS_KEY, dashboard_name)
             .map(|v| v)
             .map_err(|e| e.to_string())
+    }
+
+    pub fn get_tile_space(&self, dashboard_name: &str, tile_id: &str) -> String {
+        format!("{}:{}", dashboard_name, tile_id)
+    }
+
+    /// Returns `tile` data for `tile_id` from `dashboard_name`
+    pub fn get_tile(
+        &self,
+        dashboard_name: &str,
+        tile_id: &str,
+    ) -> Result<Option<String>, Box<Error>> {
+        let json = self.connection
+            .hget::<_, _, Option<String>>(TILES_KEY, self.get_tile_space(dashboard_name, tile_id))?;
+        Ok(json)
+    }
+
+    /// Adds `tile_json` at `tile_id` for `dashboard_name` (or update if already exists)
+    pub fn upsert_tile(
+        &self,
+        dashboard_name: &str,
+        tile_id: &str,
+        tile_json: &str,
+    ) -> Result<(), Box<Error>> {
+        let space = format!("{}:{}", dashboard_name, tile_id);
+        self.connection
+            .hset::<_, _, _, u64>(TILES_KEY, &space, tile_json)?;
+        self.connection
+            .publish::<_, _, ()>(from_config("DASHBOARD_EVENTS_CHANNEL").as_str(), tile_id)?;
+        Ok(())
     }
 }
 

@@ -39,7 +39,6 @@ services:
         - DASHBOARD_WEBSOCKET_IP_PORT=0.0.0.0:8001
         - DASHBOARD_FRONT_WEBSOCKET_IP_PORT=0.0.0.0:8001
         - DASHBOARD_REDIS_IP_PORT=redis:6379
-        - DASHBOARD_DASHBOARD_TOKEN=change-me
   redis:
     image: redis
 ```
