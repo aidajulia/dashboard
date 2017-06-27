@@ -52,6 +52,11 @@
 				text-align: right;
 			}
 		}
+        paper-fab {
+            position: fixed;
+            right: 25px;
+            bottom: 30px;          
+        }
 	</style>
 </head>
 
@@ -104,6 +109,9 @@
 		</div>
 	</div>
 	{{/if}}
+	<a href="/dashboard/new">
+		<paper-fab icon="add"></paper-fab>
+	</a>
 </body>
 
 </html>
