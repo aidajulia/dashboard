@@ -11,6 +11,7 @@ PUSH_URL = "http://{}/api/dashboard/demo/tile".format(
     os.environ.get('DASHBOARD_IP_PORT', 'localhost:8000')
 )
 PUSH_URL += "/{tile_id}"
+DEMO_ADDRESS = "85.255.1.138:80"
 
 tiles_data = {}
 
@@ -59,7 +60,7 @@ json_data = """{
         }
     ]
 }"""
-tiles_data['tile-chart-line'] = {
+tiles_data['tile-chart1'] = tiles_data['tile-chart-line'] = {
     'tile-data': {
         "header": "Line chart!!",
         "type": "line",
@@ -110,7 +111,7 @@ json_data = """{
         }
     ]
 }"""
-tiles_data['tile-chart-bar'] = {
+tiles_data['tile-chart2'] = tiles_data['tile-chart-bar'] = {
     'tile-data': {
         "header": "Bar chart!!",
         "type": "bar",
@@ -241,7 +242,7 @@ json_data = """{
         }
     ]
 }"""
-tiles_data['tile-chart-pie'] = {
+tiles_data['tile-chart3'] = tiles_data['tile-chart-pie'] = {
     'tile-data': {
         "header": "Pie chart!!",
         "type": "pie",
@@ -310,13 +311,13 @@ tiles_data['tile-image3'] = {
 }
 
 
-tiles_data['tile-markdown-simple'] = {
+tiles_data['tile-markdown1'] = tiles_data['tile-markdown-simple'] = {
     'tile-data': {
         "markdown": "`Markdown` is totally _awesome_!"
     }
 }
 
-tiles_data['tile-markdown-listing'] = {
+tiles_data['tile-markdown2'] = tiles_data['tile-markdown-listing'] = {
     'tile-data': {
         "markdown": """# Header 1
 ## Header 2
@@ -332,6 +333,19 @@ tiles_data['tile-markdown-listing'] = {
 """
     }
 }
+tiles_data['tile-markdown3'] = {
+    'tile-data': {
+        "markdown": """# Tile docs
+Each of links below contains demo (to see the demo click button in top-right corner after link clicked).
+* [Tile Chart](http://{demo_address}/components/dashboard-toolkit/#tile-chart)
+* [Tile Image](http://{demo_address}/components/dashboard-toolkit/#tile-image)
+* [Tile Markdown](http://{demo_address}/components/dashboard-toolkit/#tile-markdown)
+* [Tile Value](http://{demo_address}/components/dashboard-toolkit/#tile-value)
+* [Other Dashboards](http://{demo_address}/components/dashboard-toolkit/#dashboard-ws)
+""".format(demo_address=DEMO_ADDRESS)
+    }
+}
+print(tiles_data['tile-markdown3'])
 
 
 tiles_data['tile-value1'] = {
