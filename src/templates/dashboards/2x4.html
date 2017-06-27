@@ -19,16 +19,19 @@
   <dashboard-ws websocket-address="{{websocket_uri}}/{{dashboard_name}}">
     <split-area kind="horizontally">
       <split-area kind="vertically">
-        <tile-image id="tile-image3"></tile-image>
-        <tile-chart id="tile-chart-line"></tile-chart>
-        <tile-chart id="tile-chart-bar"></tile-chart>
-        <tile-markdown id="tile-markdown-listing"></tile-markdown>
+        <tile-image id="tile-image1"></tile-image>
+        <tile-chart id="tile-chart1"></tile-chart>
+        <tile-chart id="tile-chart2"></tile-chart>
+        <tile-markdown id="tile-markdown1"></tile-markdown>
       </split-area>
       <split-area kind="vertically">
-        <tile-markdown id="tile-markdown-simple"></tile-markdown>
-        <tile-chart id="tile-chart-pie"></tile-chart>
-        <tile-value id="tile-value2"></tile-value>
-        <tile-blank></tile-blank>
+        <tile-markdown id="tile-markdown2"></tile-markdown>
+        <tile-chart id="tile-chart3"></tile-chart>
+        <tiles-rotor flip-time="4000">
+          <tile-value id="tile-value1"></tile-value>
+          <tile-value id="tile-value2"></tile-value>
+        </tiles-rotor>
+        <tile-markdown id="tile-markdown3"></tile-markdown>
       </split-area>
     </split-area>
   </dashboard-ws>
