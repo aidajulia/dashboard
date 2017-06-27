@@ -40,6 +40,7 @@ mod tests {
     use iron::status::Status;
     use iron_test::{request, response};
     use std::error::Error;
+    use test_utils;
 
 
     fn _get_data(url: &str) -> Response {
@@ -74,16 +75,6 @@ mod tests {
         );
     }
 
-    fn upsert_dashboard(db: &db::Db, dashboard_name: &str) -> db::Dashboard {
-        let dashboard = db::Dashboard::new(
-            dashboard_name.to_string(),
-            "login@email.com".to_string(),
-            "2x4".to_string(),
-        );
-        db.upsert_dashboard(&dashboard).unwrap();
-        db.get_dashboard(dashboard_name).unwrap().unwrap()
-    }
-
     #[test]
     fn test_dashboard_shows_created_dashboard() {
         utils::load_config(None);
@@ -112,7 +103,7 @@ mod tests {
         utils::load_config(None);
         let db = db::Db::new().unwrap();
         let dashboard_name = "dashboard-test";
-        upsert_dashboard(&db, &dashboard_name);
+        test_utils::upsert_dashboard(&db, &dashboard_name);
         db.upsert_tile(&dashboard_name, "tile-test", "{}").unwrap();
     }
 
@@ -156,7 +147,7 @@ mod tests {
     fn tile_post_returns_201() {
         utils::load_config(None);
         let db = db::Db::new().unwrap();
-        let dashboard = upsert_dashboard(&db, "dashboard-test");
+        let dashboard = test_utils::upsert_dashboard(&db, "dashboard-test");
         let url = format!(
             "http://localhost:8000/api/dashboard/{}/tile/tile_id",
             dashboard.name
@@ -170,10 +161,30 @@ mod tests {
     }
 
     #[test]
+    fn tile_post_saves_tile_id_in_tile_data() {
+        utils::load_config(None);
+        let db = db::Db::new().unwrap();
+        let dashboard = test_utils::upsert_dashboard(&db, "dashboard-test");
+        let url = format!(
+            "http://localhost:8000/api/dashboard/{}/tile/tile-test",
+            dashboard.name
+        );
+        let api_key = dashboard.get_api_token().unwrap();
+        let tile_data = "{}";
+
+        let response = _post_data(url, api_key, &tile_data);
+
+        assert_eq!(response.status.unwrap(), status::Created);
+        let json = db.get_tile("dashboard-test", "tile-test").unwrap();
+        assert_eq!(json, Some("{\"tile-id\":\"tile-test\"}".to_string()));
+    }
+
+
+    #[test]
     fn tile_post_returns_400_when_json_invalid() {
         utils::load_config(None);
         let db = db::Db::new().unwrap();
-        let dashboard = upsert_dashboard(&db, "dashboard-test");
+        let dashboard = test_utils::upsert_dashboard(&db, "dashboard-test");
         let url = format!(
             "http://localhost:8000/api/dashboard/{}/tile/tile_id",
             dashboard.name
@@ -228,7 +239,7 @@ mod tests {
         utils::load_config(None);
         let db = db::Db::new().unwrap();
         let dashboard_name = "dashboard-test";
-        upsert_dashboard(&db, &dashboard_name);
+        test_utils::upsert_dashboard(&db, &dashboard_name);
         db.upsert_tile(&dashboard_name, "tile-test", "{}").unwrap();
         let mut headers = Headers::new();
         headers.set(Authorization("incorrect-token".to_owned()));

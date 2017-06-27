@@ -38,6 +38,8 @@ mod routing;
 mod templating;
 mod utils;
 mod views;
+#[cfg(test)]
+mod test_utils;
 mod websocket;
 use hyper::server::Listening;
 use routing::get_mount;

@@ -18,6 +18,38 @@ pub struct Db {
 const DASHBOARDS_KEY: &'static str = "dashboards";
 const TILES_KEY: &'static str = "tiles";
 
+
+/// Returns channel for `dashboard_name` dashboard where changes are announced
+pub fn get_dashboard_channel<D: AsRef<str>>(dashboard_name: D) -> String {
+    format!(
+        "{}:{}",
+        from_config("DASHBOARD_EVENTS_CHANNEL").as_str(),
+        dashboard_name.as_ref()
+    )
+}
+
+
+/// Returns JSON with inserted `tile_id` at `"tile-id"`
+fn payload_with_tile_id(
+    mut tile_data: serde_json::Value,
+    tile_id: &str,
+) -> Result<String, &'static str> {
+    let mut tile_obj = match tile_data.as_object_mut() {
+        None => return Err("Payload is not an object"),
+        Some(v) => v,
+    };
+    tile_obj.insert(
+        String::from("tile-id"),
+        serde_json::Value::String(String::from(tile_id)),
+    );
+    match serde_json::to_string::<serde_json::Map<String, serde_json::Value>>(tile_obj) {
+        Err(_) => Err("Failed converting to JSON"),
+        Ok(v) => Ok(v),
+    }
+}
+
+
+
 impl Db {
     pub fn new() -> Result<Db, &'static str> {
         // TODO: get from thread pool
@@ -109,10 +141,12 @@ impl Db {
         tile_json: &str,
     ) -> Result<(), Box<Error>> {
         let space = format!("{}:{}", dashboard_name, tile_id);
+        let tile_data = serde_json::from_str::<serde_json::Value>(tile_json)?;
+        let tile_json_with_id: String = payload_with_tile_id(tile_data, tile_id)?;
         self.connection
-            .hset::<_, _, _, u64>(TILES_KEY, &space, tile_json)?;
+            .hset::<_, _, _, u64>(TILES_KEY, &space, tile_json_with_id)?;
         self.connection
-            .publish::<_, _, ()>(from_config("DASHBOARD_EVENTS_CHANNEL").as_str(), tile_id)?;
+            .publish::<_, _, ()>(get_dashboard_channel(dashboard_name), tile_id)?;
         Ok(())
     }
 }

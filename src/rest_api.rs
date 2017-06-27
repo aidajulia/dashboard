@@ -129,12 +129,16 @@ fn _tile_post(req: &mut Request) -> Result<(Status, String), Box<Error>> {
         ));
     }
 
+    // TODO: delegate this check to modeule db, this needs better error
+    // propagation. Now it relays on Box which is hard to inspect. Replace it
+    // with own custom error like DbError or something
     if let Err(e) = serde_json::from_str::<serde_json::Value>(&json) {
         return Ok((
             Status::BadRequest,
             format!("Unable to unjson payload: ({})", e),
         ));
     }
+
     db.upsert_tile(dashboard_name, tile_id, &json)?;
     Ok((Status::Created, "".to_string()))
 }

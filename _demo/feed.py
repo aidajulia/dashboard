@@ -3,11 +3,11 @@ import json
 import logging
 import os
 
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 import requests
 
-PUSH_URL = "http://{}/api/tile".format(
+PUSH_URL = "http://{}/api/dashboard/demo/tile".format(
     os.environ.get('DASHBOARD_IP_PORT', 'localhost:8000')
 )
 PUSH_URL += "/{tile_id}"
