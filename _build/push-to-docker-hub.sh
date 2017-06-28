@@ -9,7 +9,6 @@ IMAGE_NAME_COMMIT="$IMAGE_NAME":"$TRAVIS_COMMIT"
 IMAGE_NAME_TAG="$IMAGE_NAME":"$TRAVIS_TAG"
 
 
-
 if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_RUST_VERSION" == "stable" ]
 then
     echo "Releasing commit version .."
@@ -19,7 +18,7 @@ then
     docker push "$IMAGE_NAME"
 
     echo docker push "$IMAGE_NAME_COMMIT"
-    if [ -n ${TRAVIS_TAG+x} ]
+    if [ -n "$TRAVIS_TAG" ]
     then
         echo "Releasing tag version .."
 
