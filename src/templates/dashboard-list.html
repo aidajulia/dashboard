@@ -15,10 +15,6 @@
 			@apply(--layout-center-justified);
 		}
 
-		paper-item {
-			border-bottom: 1px solid #e8e8e8;
-		}
-
 		#pagination {
 			display: block;
 			max-width: 720px;
@@ -62,7 +58,7 @@
 
 <body>
 	<app-toolbar>
-		<div main-title>Dashboards</div>
+		<a href="/"><div main-title>Dashboards</div></a>
 	</app-toolbar>
 
 	{{#if dashboards}}
