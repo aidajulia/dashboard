@@ -9,6 +9,7 @@
   <link rel="import" href="/static/elements.html">
 	<style is="custom-style">
     * {
+      background-color: #2b2b2b;
       --dashboard-background-color: #2b2b2b;
     }
     body {
@@ -18,7 +19,7 @@
   </style>
 </head>
 
-<body class='fullbleed'>
+<body unresolved class='fullbleed'>
   <dashboard-ws websocket-address="{{websocket_uri}}/{{dashboard_name}}">
     <split-area kind="horizontally">
       <split-area kind="vertically">

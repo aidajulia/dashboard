@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 	<script src="/static/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 	<link rel="import" href="/static/dashboard-list-elements.html">
+	<link rel="stylesheet" type="text/css" href="/static/main.css">
 
 	<style is="custom-style">
 		.center {
@@ -48,17 +49,20 @@
 				text-align: right;
 			}
 		}
-        paper-fab {
-            position: fixed;
-            right: 25px;
-            bottom: 30px;          
-        }
+
+		paper-fab {
+			position: fixed;
+			right: 25px;
+			bottom: 30px;
+		}
 	</style>
 </head>
 
-<body>
+<body unresolved>
 	<app-toolbar>
-		<a href="/"><div main-title>Dashboards</div></a>
+		<a href="/">
+			<div main-title>Dashboards</div>
+		</a>
 	</app-toolbar>
 
 	{{#if dashboards}}
