@@ -115,7 +115,7 @@ pub fn dashboard_list(req: &mut Request) -> IronResult<Response> {
         Ok(v) => v,
     };
     let (dashboards, page_max) = match get_page_items(dashboards.iter(), page_current, per_page) {
-        Err(_) => return Ok(Response::with((status::InternalServerError, err_msg))),
+        Err(e) => return Ok(Response::with((status::InternalServerError, e.to_string()))),
         Ok(v) => v,
     };
     tmplt_data.insert("page-current".to_string(), to_json(&(page_current)));
