@@ -293,20 +293,21 @@ tiles_data['tile-chart-bubble'] = {
 
 tiles_data["tile-image1"] = {
     "tile-data": {
-        "header": "vf",
-        "imageSrc": "https://media.giphy.com/media/D8UYWEpnUpJ4Y/giphy.gif",
+        "header": "Rust logo",
+        "header": "rust",
+        "imageSrc": "https://www.rust-lang.org/logos/rust-logo-256x256.png",
     },
 }
 tiles_data['tile-image2'] = {
     'tile-data': {
-        "header": "vf",
-        "imageSrc": "http://68.media.tumblr.com/9ce4bcae65571ffb8b2f497eaf12c5e4/tumblr_ntkqjdkocL1up91bno1_500.gif",
+        "header": "Polymer logo",
+        "imageSrc": "https://www.polymer-project.org/images/logos/p-logo.png",
     }
 }
 tiles_data['tile-image3'] = {
     'tile-data': {
         "header": "vf",
-        "imageSrc": "http://68.media.tumblr.com/75c353625823dfc29d6aaf7f19c4f330/tumblr_olahwyYFvZ1r7sijxo1_500.gif"
+        "imageSrc": "https://media.giphy.com/media/D8UYWEpnUpJ4Y/giphy.gif",
     }
 }
 
