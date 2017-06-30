@@ -1,4 +1,3 @@
-
 use db;
 use redis;
 use serde_json;
