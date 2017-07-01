@@ -12,15 +12,15 @@ This project is inspired by Tipboard (http://allegro.tech/tipboard/)
 
 To see Dashboard in action go here:
 
-* [Demo](http://85.255.1.138:8000/)
+* [Demo](http://85.255.1.138:9000/)
 
 To see other possible dashboards (**NOT YET AVAILABLE IN ABOVE DEMO**)
 
 
-* [Dashboard with single tile (tile-value)](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/single-tile-value.html)
-* [Dashboard with single tile (tile-chart)](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/single-tile-chart.html)
-* [Dashboard with 2x4 layout](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/2x4.html)
-* [Dashboard with advanced splitting feature](http://85.255.1.138/components/dashboard-toolkit/demo/dashboards/split-demo.html)
+* [Dashboard with single tile (tile-value)](http://85.255.1.138:9000/components/dashboard-toolkit/demo/dashboards/single-tile-value.html)
+* [Dashboard with single tile (tile-chart)](http://85.255.1.138:9000/components/dashboard-toolkit/demo/dashboards/single-tile-chart.html)
+* [Dashboard with 2x4 layout](http://85.255.1.138:9000/components/dashboard-toolkit/demo/dashboards/2x4.html)
+* [Dashboard with advanced splitting feature](http://85.255.1.138:9000/components/dashboard-toolkit/demo/dashboards/split-demo.html)
 
 
 # Running own Dashboard

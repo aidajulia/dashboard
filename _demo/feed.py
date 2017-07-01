@@ -11,7 +11,8 @@ PUSH_URL = "http://{}/api/dashboard/demo/tile".format(
     os.environ.get('DASHBOARD_IP_PORT', 'localhost:8000')
 )
 PUSH_URL += "/{tile_id}"
-DEMO_ADDRESS = "85.255.1.138:80"
+DEMO_ADDRESS = "85.255.1.138:9000"
+
 
 tiles_data = {}
 
