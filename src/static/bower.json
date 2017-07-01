@@ -16,7 +16,7 @@
     "tests"
   ],
   "dependencies": {
-    "dashboard-toolkit": "xliiv/dashboard-toolkit#master",
+    "dashboard-toolkit": "xliiv/dashboard-toolkit#1.0.0",
     "app-layout": "PolymerElements/app-layout#^1.0.1",
     "paper-input": "PolymerElements/paper-input#^1.1.24",
     "paper-button": "PolymerElements/paper-button#^1.0.15",

@@ -1,7 +1,7 @@
 [package]
 authors = ["xliiv <tymoteusz.jankowski@gmail.com>"]
 name = "dashboard"
-version = "0.1.0"
+version = "1.0.0"
 
 [dependencies]
 bodyparser = "0.7"

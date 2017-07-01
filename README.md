@@ -12,7 +12,7 @@ This project is inspired by Tipboard (http://allegro.tech/tipboard/)
 
 To see Dashboard in action go here:
 
-* [Demo](http://85.255.1.138:9000/)
+* [Demo](http://85.255.1.138/)
 
 To see other possible dashboards (**NOT YET AVAILABLE IN ABOVE DEMO**)
 
