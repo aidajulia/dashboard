@@ -7,11 +7,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 import requests
 
-PUSH_URL = "http://{}/api/dashboard/demo/tile".format(
+PUSH_URL = "https://{}/api/dashboard/demo/tile".format(
     os.environ.get('DASHBOARD_IP_PORT', 'localhost:8000')
 )
 PUSH_URL += "/{tile_id}"
-DEMO_ADDRESS = "85.255.1.138:9000"
+DEMO_ADDRESS = "https://docs.d45hb04rd.space"
 
 
 tiles_data = {}
@@ -339,11 +339,11 @@ tiles_data['tile-markdown3'] = {
     'tile-data': {
         "markdown": """# Tile docs
 Each of links below contains demo (to see the demo click button in top-right corner after link clicked).
-* [Tile Chart](http://{demo_address}/components/dashboard-toolkit/#tile-chart)
-* [Tile Image](http://{demo_address}/components/dashboard-toolkit/#tile-image)
-* [Tile Markdown](http://{demo_address}/components/dashboard-toolkit/#tile-markdown)
-* [Tile Value](http://{demo_address}/components/dashboard-toolkit/#tile-value)
-* [Other Dashboards](http://{demo_address}/components/dashboard-toolkit/#dashboard-ws)
+* [Tile Chart]({demo_address}/components/dashboard-toolkit/#tile-chart)
+* [Tile Image]({demo_address}/components/dashboard-toolkit/#tile-image)
+* [Tile Markdown]({demo_address}/components/dashboard-toolkit/#tile-markdown)
+* [Tile Value]({demo_address}/components/dashboard-toolkit/#tile-value)
+* [Other Dashboards]({demo_address}/components/dashboard-toolkit/#dashboard-ws)
 """.format(demo_address=DEMO_ADDRESS)
     }
 }
