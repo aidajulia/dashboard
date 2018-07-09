@@ -8,19 +8,14 @@ This project is inspired by Tipboard (http://allegro.tech/tipboard/)
 **FOR NOW THIS IS A TOY PROJECT, I DID THIS FOR LEARNING RUST**
 
 
-# Live demo
+## Screens
 
-To see Dashboard in action go here:
-
-* [Demo](https://d45hb04rd.space/)
-
-To see other possible dashboards (**NOT YET AVAILABLE IN ABOVE DEMO**)
-
-
-* [Dashboard with single tile (tile-value)](https://docs.d45hb04rd.space/components/dashboard-toolkit/demo/dashboards/single-tile-value.html)
-* [Dashboard with single tile (tile-chart)](https://docs.d45hb04rd.space/components/dashboard-toolkit/demo/dashboards/single-tile-chart.html)
-* [Dashboard with 2x4 layout](https://docs.d45hb04rd.space/components/dashboard-toolkit/demo/dashboards/2x4.html)
-* [Dashboard with advanced splitting feature](https://docs.d45hb04rd.space/components/dashboard-toolkit/demo/dashboards/split-demo.html)
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/listing.png" width="48%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image1.png" width="48%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image2.png" width="48%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image3.png" width="48%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image4.png" width="48%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image5.png" width="48%" />
 
 
 # Running own Dashboard
