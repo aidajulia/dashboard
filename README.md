@@ -10,12 +10,17 @@ This project is inspired by Tipboard (http://allegro.tech/tipboard/)
 
 ## Screens
 
-<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/listing.png" width="48%" />
-<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image1.png" width="48%" />
-<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image2.png" width="48%" />
-<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image3.png" width="48%" />
-<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image4.png" width="48%" />
-<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image5.png" width="48%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/listing.png" width="100%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image3.png" width="100%" />
+
+<details>
+ <summary>More screens ..</summary>
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image1.png" width="100%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image2.png" width="100%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image4.png" width="100%" />
+<img src="https://raw.githubusercontent.com/xliiv/dashboard/master/_demo/screens/demo-image5.png" width="100%" />
+</details>
+
 
 
 # Running own Dashboard
